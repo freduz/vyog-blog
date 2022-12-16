@@ -1,0 +1,10 @@
+.feed__container{
+    display: grid;
+    grid-template-columns: 4fr 1fr;
+    grid-template-rows: 400px 1fr
+}
+
+
+.popular__tags{
+    align-self: flex-start;
+}
