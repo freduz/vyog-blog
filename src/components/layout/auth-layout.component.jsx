@@ -5,7 +5,6 @@ import SignIn from '../auth/sign-in/sign-in.component'
 import SignUp from '../auth/sign-up/sign-up.component'
 
 const AuthLayout = () => {
-    console.log("Insde the sauth")
     return (
       
               <Routes>
