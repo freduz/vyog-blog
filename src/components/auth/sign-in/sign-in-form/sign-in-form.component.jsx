@@ -7,6 +7,7 @@ import {
   import { Link } from 'react-router-dom';
   import { signInUserWithEmailAndPassword } from '../../../../utils/firebase/firebase';
   import FormInput from '../../../form-input/form-input.component'
+  
 
 import('./sign-in-form.style.scss');
 
@@ -31,9 +32,7 @@ const SignInForm = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    const response = await await signInUserWithEmailAndPassword(email,password)
-
-    
+    const {user} = await await signInUserWithEmailAndPassword(email,password)
   }
 
     return (

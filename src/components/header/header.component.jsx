@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useContext, Fragment } from 'react';
 import {
   MDBContainer,
   MDBNavbar,
@@ -8,18 +8,26 @@ import {
   MDBNavbarNav,
   MDBNavbarItem,
   MDBNavbarLink,
-  MDBBtn,
-  MDBDropdown,
-  MDBDropdownToggle,
-  MDBDropdownMenu,
-  MDBDropdownItem,
   MDBCollapse,
 } from 'mdb-react-ui-kit';
 
 import { Link } from 'react-router-dom';
 
+import {UserContext} from '../../contexts/user.context'
+import {signOutUser} from '../../utils/firebase/firebase'
+
+
 export default function App() {
   const [showBasic, setShowBasic] = useState(false);
+  const {currentUser,setCurrentUser} = useContext(UserContext)
+
+  const signOutHandler = async () => {
+    console.log('loggedout')
+    const status =await signOutUser()
+    setCurrentUser(null)
+    console.log(status)
+  }
+
 
   return (
     <MDBNavbar className='header' expand='lg' light bgColor='light'>
@@ -27,7 +35,7 @@ export default function App() {
         <Link to="/">
         <MDBNavbarBrand>Vogue</MDBNavbarBrand>
         </Link>
-     
+
 
         <MDBNavbarToggler
           aria-controls='navbarSupportedContent'
@@ -64,15 +72,29 @@ export default function App() {
         </MDBCollapse>
         <div>
             <MDBNavbarNav>
-            <MDBNavbarItem>
+              {!currentUser ?   <Fragment><MDBNavbarItem>
+              <Link to="auth/sign-in">
+              <MDBNavbarLink>Sign in</MDBNavbarLink>
+              </Link>
+              </MDBNavbarItem>
+              <MDBNavbarItem><Link to="auth/sign-up">
+              <MDBNavbarLink>Sign Up</MDBNavbarLink>
+              </Link></MDBNavbarItem></Fragment>
+       
+            :  <MDBNavbarItem>
+            
+              <MDBNavbarLink onClick={signOutHandler}>Sign out</MDBNavbarLink>
+             
+       
+            </MDBNavbarItem>}
+            {/* <MDBNavbarItem>
               <Link to="auth/sign-in">
               <MDBNavbarLink>Sign in</MDBNavbarLink>
               </Link>
        
-            </MDBNavbarItem>
-            <Link to="auth/sign-up">
-              <MDBNavbarLink>Sign Up</MDBNavbarLink>
-              </Link>
+            </MDBNavbarItem> */}
+            
+            
             </MDBNavbarNav>
           </div>
       </MDBContainer>

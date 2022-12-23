@@ -1,7 +1,9 @@
 import {initializeApp} from 'firebase/app'
-import {GoogleAuthProvider,getAuth,signInWithPopup,createUserWithEmailAndPassword,signInWithEmailAndPassword} from 'firebase/auth'
-import{ getFirestore,doc,getDoc,setDoc} from 'firebase/firestore'
+import {GoogleAuthProvider,getAuth,signInWithPopup,createUserWithEmailAndPassword,signInWithEmailAndPassword,signOut,onAuthStateChanged} from 'firebase/auth'
+import{ getFirestore,doc,getDoc,setDoc,collection, addDoc} from 'firebase/firestore'
+import {getStorage,ref,uploadBytesResumable,getDownloadURL} from 'firebase/storage'
 
+import { uuidv4 } from '@firebase/util'
 
 
 const firebaseConfig = {
@@ -20,6 +22,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const auth =getAuth(firebaseApp);
 const provider = new GoogleAuthProvider();
 const db = getFirestore();
+const storage = getStorage();
+
+const articleCollection = collection(db,'articles')
 
 provider.setCustomParameters({
   prompt:'select_account'
@@ -38,6 +43,13 @@ export const signInUserWithEmailAndPassword = (email,password) => {
   return signInWithEmailAndPassword(auth,email,password)
 }
 
+export const signOutUser =  async() => {
+  return await signOut(auth)
+
+}
+
+export const onAuthStateChangedListener = (callBack) => onAuthStateChanged(auth,callBack)
+
 export const createUserDocument = async(userAuth) => {
     const userRef = doc(db,'users',userAuth.uid)
     const userDocSnapShot = await getDoc(userRef)
@@ -53,6 +65,34 @@ export const createUserDocument = async(userAuth) => {
     else{
       return false;
     }
+
+}
+
+export const createArticleWithFirebase = async(formFields,currentUser) => {
+ 
+    return await addDoc(articleCollection,{...formFields,createdAt:new Date(),uid:currentUser.uid})
+}
+
+export const uploadFileToFirebase = async(file,setUploadProgress,setErrors,setFormFields,formFields) => {
+  if(!file) return;
+
+  const storageRef = ref(storage,`articles/${uuidv4()}`);
+  const uploadtask =  uploadBytesResumable(storageRef,file);
+
+  uploadtask.on('state_changed',(snapshot) => {
+
+    const progress = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
+    setUploadProgress(progress)
+
+  },
+  (err) => {
+   setErrors(err)
+  },
+   async () => {
+      const imageUrl =  await getDownloadURL(uploadtask.snapshot.ref);
+      setFormFields({...formFields,imageUrl})
+  }
+  )
 
 }
 
